@@ -8,89 +8,99 @@
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
   <style>
-*{font-family:'Fredoka',sans-serif;box-sizing:border-box;-webkit-user-select:none;user-select:none}
-html,body{height:100%;margin:0;padding:0;width:100%;overflow:auto}
-body{background:linear-gradient(135deg,#fef3c7,#fbcfe8,#ddd6fe,#bfdbfe)}
-.app-wrap{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column}
-.board-cell{position:relative;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:clamp(11px,1.8vw,18px);border:3px solid rgba(255,255,255,.5);transition:transform .2s;cursor:pointer;aspect-ratio:1;overflow:visible}
-.board-cell:hover{transform:scale(1.08);z-index:2}
-.board-cell .cell-num{position:relative;z-index:2}
-.pion{position:absolute;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);transition:all .4s cubic-bezier(.34,1.56,.64,1);z-index:10;width:clamp(14px,2.2vw,26px);height:clamp(14px,2.2vw,26px);cursor:grab}
-.pion:active{cursor:grabbing}
-.dice-face{width:80px;height:80px;background:#fff;border-radius:16px;display:grid;padding:12px;box-shadow:0 4px 20px rgba(0,0,0,.15);border:3px solid #fbbf24}
-.dot{width:14px;height:14px;background:#1e293b;border-radius:50%}
-@keyframes diceRoll{0%{transform:rotateZ(0) scale(1)}25%{transform:rotateZ(90deg) scale(1.2)}50%{transform:rotateZ(180deg) scale(.9)}75%{transform:rotateZ(270deg) scale(1.1)}100%{transform:rotateZ(360deg) scale(1)}}
-.dice-rolling{animation:diceRoll .5s ease-in-out}
-@keyframes popIn{0%{transform:scale(0) rotate(-10deg);opacity:0}60%{transform:scale(1.15) rotate(2deg)}100%{transform:scale(1) rotate(0);opacity:1}}
-.pop-in{animation:popIn .4s ease-out forwards}
-@keyframes starBurst{0%{transform:scale(0) rotate(0);opacity:1}50%{transform:scale(1.5) rotate(180deg);opacity:.8}100%{transform:scale(0) rotate(360deg);opacity:0}}
-.star-particle{animation:starBurst .8s ease-out forwards;position:fixed;pointer-events:none;z-index:100;top:50%;left:50%}
-@keyframes confettiFall{0%{transform:translateY(-10px) rotate(0);opacity:1}100%{transform:translateY(120px) rotate(720deg);opacity:0}}
-.confetti-piece{position:fixed;width:8px;height:8px;border-radius:2px;animation:confettiFall 1.5s ease-out forwards;pointer-events:none;z-index:100}
-@keyframes snakeWiggle{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
-.snake-icon{animation:snakeWiggle .6s ease-in-out infinite}
-@keyframes ladderShine{0%,100%{filter:brightness(1)}50%{filter:brightness(1.3)}}
-.ladder-icon{animation:ladderShine 1s ease-in-out infinite}
-@keyframes slideDown{0%{transform:translateY(-20px);opacity:0}100%{transform:translateY(0);opacity:1}}
-.slide-down{animation:slideDown .3s ease-out}
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
-.btn-primary{background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;font-weight:700;padding:12px 28px;border-radius:50px;border:none;font-size:18px;cursor:pointer;box-shadow:0 4px 15px rgba(239,68,68,.3);transition:all .2s;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-.btn-primary:active{transform:translateY(0);opacity:0.95}
-.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
-.btn-roll{background:linear-gradient(135deg,#10b981,#3b82f6);font-size:20px;padding:14px 36px}
-.btn-roll:active{box-shadow:0 6px 20px rgba(59,130,246,.4)}
-.player-card{border-radius:16px;padding:10px 14px;border:3px solid transparent;transition:all .3s}
-.player-card.active{border-color:#fbbf24;box-shadow:0 0 20px rgba(251,191,36,.4);transform:scale(1.05)}
-.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);border-radius:24px;padding:32px 48px;z-index:200;text-align:center;font-size:28px;font-weight:700;box-shadow:0 10px 40px rgba(0,0,0,.3);transition:transform .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none}
-.toast.show{transform:translate(-50%,-50%) scale(1)}
-.toast-correct{background:linear-gradient(135deg,#10b981,#34d399);color:#fff}
-.toast-wrong{background:linear-gradient(135deg,#ef4444,#f87171);color:#fff}
-.cell-emoji{position:absolute;font-size:clamp(10px,1.5vw,16px);bottom:1px;right:2px;z-index:1;opacity:.7}
-#gameScreen{flex:1;overflow:auto}
-#setupScreen{display:flex;align-items:center;justify-content:center;flex:1}
+    * { font-family: 'Fredoka', sans-serif; box-sizing: border-box; -webkit-user-select: none; user-select: none; }
+    html, body { height: 100vh; margin: 0; padding: 0; width: 100%; overflow: hidden; }
+    body { background: linear-gradient(135deg, #fef3c7, #fbcfe8, #ddd6fe, #bfdbfe); }
+    
+    /* Perbaikan: Menggunakan flex-col dan h-screen agar memenuhi layar */
+    .app-wrap { display: flex; flex-direction: column; height: 100vh; width: 100%; }
+    
+    #gameScreen { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    
+    /* Layout utama: Papan di kiri/tengah, Sidebar di kanan */
+    .game-container { display: flex; flex: 1; overflow: hidden; padding: 15px; gap: 20px; }
+    
+    .board-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; height: 100%; }
+    
+    #board { 
+      display: grid; 
+      grid-template-columns: repeat(6, 1fr); 
+      gap: 8px; 
+      width: 100%; 
+      max-width: 80vh; /* Memastikan papan tetap proporsional sesuai tinggi layar */
+      aspect-ratio: 6 / 5;
+    }
+
+    .board-cell {
+      position: relative;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: clamp(12px, 2vh, 20px);
+      border: 3px solid rgba(255, 255, 255, 0.5);
+      transition: transform 0.2s;
+      aspect-ratio: 1;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+
+    .sidebar { width: 300px; display: flex; flex-direction: column; gap: 15px; flex-shrink: 0; }
+    
+    /* Responsif untuk HP */
+    @media (max-width: 1024px) {
+      .game-container { flex-direction: column; overflow-y: auto; }
+      .sidebar { width: 100%; }
+      #board { max-width: 100%; }
+      html, body { overflow: auto; }
+    }
+
+    .pion { position: absolute; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.3); transition: all 0.4s cubic-bezier(.34,1.56,.64,1); z-index: 10; width: 25px; height: 25px; }
+    .dice-face { width: 80px; height: 80px; background: #fff; border-radius: 16px; display: grid; padding: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); border: 3px solid #fbbf24; }
+    .dot { width: 14px; height: 14px; background: #1e293b; border-radius: 50%; }
+    .btn-primary { background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff; font-weight: 700; padding: 12px 28px; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 15px rgba(239,68,68,0.3); }
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 16px; }
+    .cell-emoji { position: absolute; font-size: 1.2rem; bottom: 2px; right: 2px; opacity: 0.8; }
   </style>
  </head>
  <body>
   <div class="app-wrap" id="appWrap">
-   <div id="setupScreen" class="flex items-center justify-center">
-    <div class="bg-white/90 backdrop-blur rounded-3xl shadow-2xl p-8 max-w-md w-full text-center pop-in">
+   <div id="setupScreen" class="flex items-center justify-center flex-1">
+    <div class="bg-white/90 backdrop-blur rounded-3xl shadow-2xl p-8 max-w-md w-full text-center">
      <div class="text-5xl mb-3">🎲🐍🪜</div>
-     <h1 id="titleSetup" class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-orange-500 via-pink-500 to-purple-500 bg-clip-text text-transparent mb-2">Ular Tangga</h1>
-     <p class="text-lg text-gray-600 mb-6">Perubahan Wujud Benda 🧊☀️💧</p>
-     <label class="block text-left font-semibold text-gray-700 mb-2 text-lg">Jumlah Pemain:</label>
-     <div class="flex gap-3 justify-center mb-6 flex-wrap">
-      <button onclick="setPlayers(2)" class="player-select px-6 py-3 rounded-2xl font-bold text-lg border-3 border-purple-300 bg-purple-100 text-purple-700 hover:bg-purple-200 transition" data-n="2">2 👫</button> 
-      <button onclick="setPlayers(3)" class="player-select px-6 py-3 rounded-2xl font-bold text-lg border-3 border-blue-300 bg-blue-100 text-blue-700 hover:bg-blue-200 transition" data-n="3">3 👫👤</button> 
-      <button onclick="setPlayers(4)" class="player-select px-6 py-3 rounded-2xl font-bold text-lg border-3 border-green-300 bg-green-100 text-green-700 hover:bg-green-200 transition" data-n="4">4 👨‍👩‍👧‍👦</button> 
-      <button onclick="setPlayers(5)" class="player-select px-6 py-3 rounded-2xl font-bold text-lg border-3 border-orange-300 bg-orange-100 text-orange-700 hover:bg-orange-200 transition" data-n="5">5 🎉</button>
+     <h1 class="text-3xl font-bold text-orange-600 mb-6">Ular Tangga Edukasi</h1>
+     <p class="mb-6 text-gray-600">Pilih jumlah pemain untuk memulai!</p>
+     <div class="flex gap-3 justify-center mb-6">
+       <button onclick="setPlayers(2)" class="px-4 py-2 bg-purple-100 rounded-xl font-bold">2 Pemain</button>
+       <button onclick="setPlayers(3)" class="px-4 py-2 bg-blue-100 rounded-xl font-bold">3 Pemain</button>
+       <button onclick="setPlayers(4)" class="px-4 py-2 bg-green-100 rounded-xl font-bold">4 Pemain</button>
      </div>
-     <button onclick="startGame()" class="btn-primary text-xl w-full">🎮 Mulai Bermain!</button>
+     <button onclick="startGame()" class="btn-primary w-full text-xl">🎮 Mulai Bermain!</button>
     </div>
    </div>
+
    <div id="gameScreen" class="hidden">
-    <header class="flex items-center justify-between px-4 py-2 bg-white/80 backdrop-blur shadow-md flex-shrink-0">
-     <h1 id="titleGame" class="font-bold text-lg md:text-xl bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent truncate">🎲 Ular Tangga Wujud Benda</h1>
-     <div class="flex gap-2 items-center flex-shrink-0">
-      <button onclick="toggleMusic()" id="musicBtn" class="p-2 rounded-full hover:bg-gray-200 transition" title="Musik"><i data-lucide="volume-2" style="width:20px;height:20px"></i></button> 
-      <button onclick="resetGame()" class="p-2 rounded-full hover:bg-gray-200 transition text-red-500" title="Reset"><i data-lucide="rotate-ccw" style="width:20px;height:20px"></i></button>
-     </div>
+    <header class="flex items-center justify-between px-6 py-3 bg-white/80 shadow-sm">
+     <h1 class="font-bold text-xl text-orange-600">🎲 Ular Tangga Wujud Benda</h1>
+     <button onclick="location.reload()" class="text-red-500 font-bold">Reset Game</button>
     </header>
-    <div class="flex flex-col lg:flex-row flex-1 overflow-auto p-3 gap-3">
-     <div class="flex-1 flex items-start justify-center">
-      <div class="w-full max-w-[600px]">
-       <div id="board" class="grid grid-cols-6 gap-1.5 relative" style="width:100%"></div>
-      </div>
+
+    <div class="game-container">
+     <div class="board-wrapper">
+      <div id="board"></div>
      </div>
-     <div class="lg:w-72 w-full flex flex-col gap-3 flex-shrink-0">
-      <div class="bg-white/90 backdrop-blur rounded-2xl shadow-lg p-4 text-center">
-       <p class="font-bold text-gray-600 mb-1 text-sm" id="turnLabel">Giliran: Pemain 1</p>
-       <div class="flex justify-center mb-3">
-        <div id="dice" class="dice-face" style="display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);place-items:center"></div>
+
+     <div class="sidebar">
+      <div class="bg-white/90 p-5 rounded-2xl shadow-lg text-center">
+       <p id="turnLabel" class="font-bold mb-3 text-lg">Giliran: Pemain 1</p>
+       <div class="flex justify-center mb-4">
+        <div id="dice" class="dice-face" style="display:grid; grid-template:repeat(3,1fr)/repeat(3,1fr); place-items:center;"></div>
        </div>
-       <button onclick="rollDice()" id="rollBtn" class="btn-primary btn-roll w-full">🎲 Lempar Dadu!</button>
+       <button onclick="rollDice()" id="rollBtn" class="btn-primary w-full">🎲 Lempar Dadu</button>
       </div>
-      <div class="bg-white/90 backdrop-blur rounded-2xl shadow-lg p-4 flex-1 overflow-auto">
-       <p class="font-bold text-gray-600 mb-2 text-sm">📊 Skor Pemain</p>
+      
+      <div class="bg-white/90 p-5 rounded-2xl shadow-lg flex-1">
+       <p class="font-bold mb-3">📊 Skor Pemain</p>
        <div id="playerCards" class="flex flex-col gap-2"></div>
       </div>
      </div>
@@ -99,352 +109,124 @@ body{background:linear-gradient(135deg,#fef3c7,#fbcfe8,#ddd6fe,#bfdbfe)}
   </div>
 
   <div id="questionOverlay" class="overlay hidden">
-   <div class="bg-white rounded-3xl shadow-2xl p-6 max-w-lg w-full pop-in mx-4">
-    <div class="flex items-center gap-2 mb-3"><span class="text-3xl">❓</span>
-     <h2 class="font-bold text-xl text-purple-700">Soal Perubahan Wujud</h2>
-    </div>
-    <p id="qText" class="text-lg font-semibold text-gray-800 mb-4 leading-relaxed"></p>
-    <div id="qOptions" class="flex flex-col gap-2"></div>
-   </div>
-  </div>
-  <div id="toast" class="toast"></div>
-  <div id="winOverlay" class="overlay hidden">
-   <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center pop-in relative overflow-hidden">
-    <div id="winConfetti"></div>
-    <div class="text-6xl mb-3">🏆</div>
-    <h2 class="text-3xl font-bold text-yellow-600 mb-2">Selamat!</h2>
-    <p id="winText" class="text-xl text-gray-700 mb-4"></p>
-    <div id="winScores" class="mb-4"></div>
-    <button onclick="resetGame()" class="btn-primary text-xl">🔄 Main Lagi</button>
+   <div class="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl">
+    <h2 class="font-bold text-2xl text-purple-700 mb-4">❓ Pertanyaan</h2>
+    <p id="qText" class="text-lg mb-6"></p>
+    <div id="qOptions" class="flex flex-col gap-3"></div>
    </div>
   </div>
 
   <script>
-document.body.addEventListener('click', () => {
-  if (typeof initAudio === 'function') initAudio();
-}, { once:true });
+    const ALL_QUESTIONS = [
+      {q:"Padat menjadi cair disebut…", o:["Membeku","Mencair","Menguap","Menyublim"], a:1},
+      {q:"Air di freezer menjadi es adalah contoh…", o:["Mencair","Membeku","Menguap","Mengembun"], a:1},
+      {q:"Kapur barus yang habis karena diletakkan di lemari disebut…", o:["Menguap","Mencair","Menyublim","Mengembun"], a:2}
+    ];
 
-let audioCtx = null;
-function initAudio() {
-  if (!audioCtx) {
-    try {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    } catch (e) {
-      return false;
+    const COLS=6, ROWS=5, TOTAL=30;
+    const CELL_COLORS=['#fca5a5','#fdba74','#fcd34d','#86efac','#7dd3fc','#c4b5fd'];
+    const PLAYER_COLORS=['#ef4444','#3b82f6','#10b981','#f59e0b'];
+    const SNAKES={17:7, 24:14, 29:11};
+    const LADDERS={3:12, 8:26, 15:25};
+
+    let numPlayers=2, players=[], currentPlayer=0, gameActive=false;
+
+    function setPlayers(n) { numPlayers = n; }
+
+    function cellToGrid(n) {
+      const idx = n - 1;
+      const r = Math.floor(idx / COLS);
+      const c = idx % COLS;
+      return { row: ROWS - 1 - r, col: (r % 2 === 0) ? c : (COLS - 1 - c) };
     }
-  }
-  if (audioCtx.state === 'suspended') audioCtx.resume();
-  return true;
-}
 
-function playTone(freq, dur, type = 'sine', vol = 0.15) {
-  try {
-    if (!initAudio()) return;
-    const o = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    o.type = type;
-    o.frequency.value = freq;
-    g.gain.setValueAtTime(vol, audioCtx.currentTime);
-    o.connect(g);
-    g.connect(audioCtx.destination);
-    o.start(audioCtx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
-    o.stop(audioCtx.currentTime + dur);
-  } catch (e) {}
-}
-
-function sfxDice() {
-  [200, 300, 400, 500].forEach((f, i) => setTimeout(() => playTone(f, 0.08, 'square', 0.08), i * 60));
-}
-function sfxCorrect() {
-  playTone(523, 0.15);
-  setTimeout(() => playTone(659, 0.15), 120);
-  setTimeout(() => playTone(784, 0.25), 240);
-}
-function sfxWrong() {
-  playTone(200, 0.3, 'sawtooth', 0.1);
-  setTimeout(() => playTone(150, 0.4, 'sawtooth', 0.08), 200);
-}
-function sfxSnake() {
-  [400, 350, 300, 250, 200].forEach((f, i) => setTimeout(() => playTone(f, 0.12, 'sawtooth', 0.06), i * 80));
-}
-function sfxLadder() {
-  [300, 400, 500, 600, 700].forEach((f, i) => setTimeout(() => playTone(f, 0.1, 'triangle', 0.1), i * 70));
-}
-function sfxWin() {
-  [523, 587, 659, 784, 880, 1047].forEach((f, i) => setTimeout(() => playTone(f, 0.2), i * 120));
-}
-function sfxStep() {
-  playTone(440 + Math.random() * 200, 0.06, 'sine', 0.05);
-}
-
-let musicOn = false, musicInterval = null;
-function toggleMusic() {
-  musicOn = !musicOn;
-  const btn = document.getElementById('musicBtn');
-  if (musicOn) {
-    btn.innerHTML = '<i data-lucide="volume-2" style="width:20px;height:20px"></i>';
-    startMusic();
-  } else {
-    btn.innerHTML = '<i data-lucide="volume-x" style="width:20px;height:20px"></i>';
-    stopMusic();
-  }
-  if (window.lucide) lucide.createIcons();
-}
-
-function startMusic() {
-  if (musicInterval) return;
-  const melody = [262, 294, 330, 349, 392, 349, 330, 294];
-  let i = 0;
-  musicInterval = setInterval(() => {
-    playTone(melody[i % melody.length], 0.2, 'sine', 0.03);
-    i++;
-  }, 400);
-}
-
-function stopMusic() {
-  clearInterval(musicInterval);
-  musicInterval = null;
-}
-
-const ALL_QUESTIONS = [
-  {q:"Padat menjadi cair disebut…",o:["Membeku","Mencair","Mengembun","Menyublim"],a:1},
-  {q:"Es batu di tempat terbuka akan…",o:["Membeku","Mencair","Menguap","Menyublim"],a:1},
-  {q:"Air mendidih berubah menjadi…",o:["Es","Minyak","Uap air","Embun"],a:2},
-  {q:"Cair menjadi gas disebut…",o:["Menguap","Membeku","Mencair","Mengembun"],a:0},
-  {q:"Contoh membeku adalah…",o:["Air jadi es","Es jadi air","Air jadi uap","Kapur barus habis"],a:0},
-  {q:"Uap air menjadi titik air disebut…",o:["Menguap","Membeku","Mengembun","Menyublim"],a:2},
-  {q:"Gas menjadi cair disebut…",o:["Mencair","Mengembun","Menyublim","Membeku"],a:1},
-  {q:"Contoh mengembun adalah…",o:["Air dipanaskan","Es mencair","Titik air di luar gelas dingin","Lilin meleleh"],a:2},
-  {q:"Cair menjadi padat disebut…",o:["Membeku","Mencair","Menguap","Menyublim"],a:0},
-  {q:"Air di freezer menjadi…",o:["Uap","Embun","Es","Minyak"],a:2},
-  {q:"Kapur barus mengecil termasuk…",o:["Mencair","Mengembun","Menyublim","Membeku"],a:2},
-  {q:"Padat menjadi gas disebut…",o:["Mengembun","Menyublim","Membeku","Mencair"],a:1},
-  {q:"Mentega dipanaskan akan…",o:["Membeku","Mengembun","Mencair","Menyublim"],a:2},
-  {q:"Lilin menyala lama-lama akan…",o:["Membeku","Mencair","Menyublim","Mengembun"],a:1},
-  {q:"Penyebab benda mencair adalah…",o:["Pendinginan","Pemanasan","Hujan","Angin"],a:1},
-  {q:"Uap air terkena udara dingin menjadi…",o:["Es","Api","Air","Batu"],a:2},
-  {q:"Contoh penguapan adalah…",o:["Es batu","Air panas","Kayu","Batu"],a:1},
-  {q:"Air menjadi es membutuhkan…",o:["Panas","Pendinginan","Api","Matahari"],a:1},
-  {q:"Benda cair bentuknya…",o:["Tetap","Mengikuti wadah","Keras","Kaku"],a:1},
-  {q:"Sifat benda gas adalah…",o:["Bentuk tetap","Volume tetap","Mengisi seluruh ruang","Keras"],a:2},
-  {q:"Pakaian dijemur agar airnya…",o:["Membeku","Mencair","Menguap","Mengembun"],a:2},
-  {q:"Embun pagi terjadi karena…",o:["Mencair","Mengembun","Membeku","Menyublim"],a:1},
-  {q:"Es krim terkena panas akan…",o:["Membeku","Mencair","Menyublim","Mengembun"],a:1},
-  {q:"Perubahan wujud yang memerlukan panas adalah…",o:["Membeku","Mengembun","Mencair","Mengeras"],a:2},
-  {q:"Perubahan wujud yang melepaskan panas adalah…",o:["Mencair","Menguap","Membeku","Menyublim"],a:2},
-  {q:"Gelembung air mendidih berisi…",o:["Pasir","Udara","Uap air","Minyak"],a:2},
-  {q:"Perubahan wujud terjadi karena perubahan…",o:["Warna","Suhu","Bentuk meja","Ukuran rumah"],a:1},
-  {q:"Gas menjadi cair jika mengalami…",o:["Pemanasan","Pendinginan","Pembakaran","Pengeringan"],a:1},
-  {q:"Contoh perubahan wujud sehari-hari adalah…",o:["Batu dilempar","Kayu dipotong","Es batu mencair","Buku dibaca"],a:2},
-  {q:"Perubahan wujud yang benar adalah…",o:["Es menjadi batu","Air menjadi uap","Kayu menjadi besi","Kaca menjadi kain"],a:1}
-];
-
-const COLS = 6, ROWS = 5, TOTAL = 30;
-const CELL_COLORS = ['#fca5a5','#fdba74','#fcd34d','#86efac','#7dd3fc','#c4b5fd','#f9a8d4','#a5b4fc','#6ee7b7','#fbbf24'];
-const CELL_EMOJIS = ['🧊','☀️','💧','🌡️','❄️','🌤️','🔥','💨','🌧️','🕯️','🧈','☁️','🌫️','⛄','🫧'];
-const PLAYER_COLORS = ['#ef4444','#3b82f6','#10b981','#f59e0b','#8b5cf6'];
-const PLAYER_NAMES = ['Merah','Biru','Hijau','Kuning','Ungu'];
-const PLAYER_EMOJIS = ['🔴','🔵','🟢','🟡','🟣'];
-const SNAKES = {17:7, 24:14, 29:11, 20:6};
-const LADDERS = {3:12, 8:26, 15:25, 19:28};
-
-let numPlayers = 2, players = [], currentPlayer = 0, gameActive = false, rolling = false, shuffledQs = [], qIndex = 0;
-
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-function setPlayers(n) {
-  numPlayers = n;
-  document.querySelectorAll('.player-select').forEach(b => {
-    b.classList.remove('ring-4', 'ring-yellow-400');
-    if (parseInt(b.dataset.n) === n) b.classList.add('ring-4', 'ring-yellow-400');
-  });
-}
-
-function cellToGrid(cellNum) {
-  const idx = cellNum - 1;
-  const row = Math.floor(idx / COLS);
-  const col = idx % COLS;
-  const actualRow = ROWS - 1 - row;
-  const actualCol = (row % 2 === 0) ? col : (COLS - 1 - col);
-  return {row: actualRow, col: actualCol};
-}
-
-function buildBoard() {
-  const board = document.getElementById('board');
-  board.innerHTML = '';
-  const cells = new Array(ROWS).fill(null).map(() => new Array(COLS).fill(null));
-  for (let n = 1; n <= TOTAL; n++) {
-    const {row, col} = cellToGrid(n);
-    const div = document.createElement('div');
-    div.className = 'board-cell';
-    div.id = 'cell-' + n;
-    div.style.background = CELL_COLORS[(n - 1) % CELL_COLORS.length];
-    let label = n === 1 ? '🚀 START' : n === 30 ? '🏁 FINISH' : n;
-    let extra = '';
-    if (n === 1) div.style.background = 'linear-gradient(135deg,#34d399,#10b981)';
-    if (n === 30) div.style.background = 'linear-gradient(135deg,#fbbf24,#f59e0b)';
-    if (SNAKES[n]) extra = `<span class="cell-emoji snake-icon">🐍</span>`;
-    if (LADDERS[n]) extra = `<span class="cell-emoji ladder-icon">🪜</span>`;
-    if (!extra && n > 1 && n < 30) extra = `<span class="cell-emoji">${CELL_EMOJIS[(n - 1) % CELL_EMOJIS.length]}</span>`;
-    div.innerHTML = `<span class="cell-num" style="font-size:${n === 1 || n === 30 ? 'clamp(8px,1.2vw,12px)' : 'clamp(11px,1.8vw,18px)'}">${label}</span>${extra}`;
-    cells[row][col] = {n, div};
-  }
-  for (let r = 0; r < ROWS; r++) {
-    for (let c = 0; c < COLS; c++) {
-      if (cells[r][c]) board.appendChild(cells[r][c].div);
+    function buildBoard() {
+      const board = document.getElementById('board');
+      board.innerHTML = '';
+      for (let n = 1; n <= TOTAL; n++) {
+        const div = document.createElement('div');
+        div.className = 'board-cell';
+        div.id = 'cell-' + n;
+        div.style.backgroundColor = CELL_COLORS[(n-1) % CELL_COLORS.length];
+        div.innerHTML = `<span>${n === 1 ? 'START' : n === 30 ? 'FINISH' : n}</span>`;
+        if(SNAKES[n]) div.innerHTML += `<span class="cell-emoji">🐍</span>`;
+        if(LADDERS[n]) div.innerHTML += `<span class="cell-emoji">🪜</span>`;
+        board.appendChild(div);
+      }
     }
-  }
-}
 
-function placePions() {
-  document.querySelectorAll('.pion').forEach(p => p.remove());
-  const counts = {};
-  players.forEach((p, i) => {
-    if (!counts[p.pos]) counts[p.pos] = [];
-    counts[p.pos].push(i);
-  });
-  players.forEach((p, i) => {
-    const cell = document.getElementById('cell-' + p.pos);
-    if (!cell) return;
-    const pion = document.createElement('div');
-    pion.className = 'pion';
-    pion.id = 'pion-' + i;
-    pion.style.background = PLAYER_COLORS[i];
-    const idx = counts[p.pos].indexOf(i);
-    const off = [[-4,-4],[4,-4],[-4,4],[4,4],[0,0]][idx] || [0,0];
-    pion.style.left = `calc(50% - ${13 - off[0]}px)`;
-    pion.style.top = `calc(50% - ${13 - off[1]}px)`;
-    cell.appendChild(pion);
-  });
-}
+    function startGame() {
+      players = Array.from({length: numPlayers}, () => ({pos: 1, score: 0}));
+      document.getElementById('setupScreen').classList.add('hidden');
+      document.getElementById('gameScreen').classList.remove('hidden');
+      buildBoard();
+      placePions();
+      renderPlayerCards();
+    }
 
-function renderDice(val) {
-  const dice = document.getElementById('dice');
-  dice.innerHTML = '';
-  const dots = {1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]}[val];
-  for(let i=0; i<9; i++){
-    const d = document.createElement('div');
-    if(dots.includes(i)) d.className = 'dot';
-    dice.appendChild(d);
-  }
-}
+    function placePions() {
+      document.querySelectorAll('.pion').forEach(p => p.remove());
+      players.forEach((p, i) => {
+        const cell = document.getElementById('cell-' + p.pos);
+        const pion = document.createElement('div');
+        pion.className = 'pion';
+        pion.style.backgroundColor = PLAYER_COLORS[i];
+        pion.style.left = (10 * i) + 'px'; 
+        cell.appendChild(pion);
+      });
+    }
 
-function renderPlayerCards() {
-  const container = document.getElementById('playerCards');
-  container.innerHTML = '';
-  players.forEach((p, i) => {
-    const card = document.createElement('div');
-    card.className = `player-card flex items-center gap-3 ${i === currentPlayer ? 'active' : ''}`;
-    card.style.background = PLAYER_COLORS[i] + '20';
-    card.innerHTML = `<span class="text-2xl">${PLAYER_EMOJIS[i]}</span><div class="flex-1"><div class="font-bold text-sm" style="color:${PLAYER_COLORS[i]}">${PLAYER_NAMES[i]}</div><div class="text-xs text-gray-500">Kotak ${p.pos} • ⭐ ${p.score} poin</div></div>`;
-    container.appendChild(card);
-  });
-}
+    function renderPlayerCards() {
+      const container = document.getElementById('playerCards');
+      container.innerHTML = players.map((p, i) => `
+        <div class="p-3 rounded-xl ${i === currentPlayer ? 'border-2 border-orange-500 bg-orange-50' : 'bg-gray-100'}">
+          Pemain ${i+1}: Kotak ${p.pos} | Skor: ${p.score}
+        </div>
+      `).join('');
+    }
 
-function startGame() {
-  initAudio();
-  players = [];
-  for (let i = 0; i < numPlayers; i++) players.push({pos: 1, score: 0});
-  currentPlayer = 0;
-  gameActive = true;
-  shuffledQs = shuffle(ALL_QUESTIONS);
-  document.getElementById('setupScreen').classList.add('hidden');
-  document.getElementById('gameScreen').classList.remove('hidden');
-  buildBoard();
-  placePions();
-  renderDice(1);
-  renderPlayerCards();
-  if (window.lucide) lucide.createIcons();
-}
+    async function rollDice() {
+      const val = Math.floor(Math.random() * 6) + 1;
+      // Animasi dadu sederhana
+      document.getElementById('dice').innerText = val;
+      
+      let p = players[currentPlayer];
+      p.pos = Math.min(p.pos + val, TOTAL);
+      placePions();
+      
+      if(p.pos === TOTAL) { alert("Pemain " + (currentPlayer+1) + " Menang!"); return; }
+      
+      showQuestion();
+    }
 
-function resetGame() {
-  location.reload();
-}
+    function showQuestion() {
+      const q = ALL_QUESTIONS[Math.floor(Math.random() * ALL_QUESTIONS.length)];
+      document.getElementById('qText').innerText = q.q;
+      const opts = document.getElementById('qOptions');
+      opts.innerHTML = '';
+      q.o.forEach((o, i) => {
+        const btn = document.createElement('button');
+        btn.className = "p-3 bg-purple-50 hover:bg-purple-100 rounded-xl text-left border";
+        btn.innerText = o;
+        btn.onclick = () => {
+          if(i === q.a) players[currentPlayer].score += 10;
+          document.getElementById('questionOverlay').classList.add('hidden');
+          checkSnakeLadder();
+        };
+        opts.appendChild(btn);
+      });
+      document.getElementById('questionOverlay').classList.remove('hidden');
+    }
 
-async function rollDice() {
-  if (!gameActive || rolling) return;
-  rolling = true;
-  document.getElementById('rollBtn').disabled = true;
-  sfxDice();
-  const dice = document.getElementById('dice');
-  dice.classList.add('dice-rolling');
-  let val = 1;
-  for (let i = 0; i < 8; i++) {
-    await new Promise(r => setTimeout(r, 60));
-    val = Math.floor(Math.random() * 6) + 1;
-    renderDice(val);
-  }
-  dice.classList.remove('dice-rolling');
-  const p = players[currentPlayer];
-  let target = Math.min(p.pos + val, 30);
-  await animateMove(currentPlayer, p.pos, target);
-  p.pos = target;
-  if (p.pos === 30) { sfxWin(); showWin(currentPlayer); return; }
-  showQuestion(() => {
-    const sDest = SNAKES[p.pos], lDest = LADDERS[p.pos];
-    if (sDest) {
-      sfxSnake();
-      setTimeout(async () => { await animateMove(currentPlayer, p.pos, sDest); p.pos = sDest; placePions(); nextTurn(); }, 1000);
-    } else if (lDest) {
-      sfxLadder();
-      setTimeout(async () => { await animateMove(currentPlayer, p.pos, lDest); p.pos = lDest; placePions(); if(p.pos===30) showWin(currentPlayer); else nextTurn(); }, 1000);
-    } else nextTurn();
-  });
-}
-
-async function animateMove(pi, from, to) {
-  let cur = from;
-  const step = from < to ? 1 : -1;
-  while (cur !== to) {
-    cur += step;
-    players[pi].pos = cur;
-    placePions();
-    sfxStep();
-    await new Promise(r => setTimeout(r, 150));
-  }
-}
-
-function nextTurn() {
-  currentPlayer = (currentPlayer + 1) % numPlayers;
-  rolling = false;
-  renderPlayerCards();
-  document.getElementById('rollBtn').disabled = false;
-  document.getElementById('turnLabel').innerHTML = `Giliran: ${PLAYER_EMOJIS[currentPlayer]} <b>${PLAYER_NAMES[currentPlayer]}</b>`;
-}
-
-function showQuestion(cb) {
-  const q = shuffledQs[qIndex++ % shuffledQs.length];
-  document.getElementById('qText').textContent = q.q;
-  const opts = document.getElementById('qOptions');
-  opts.innerHTML = '';
-  q.o.forEach((o, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'w-full text-left px-4 py-3 rounded-xl border-2 hover:bg-purple-50 transition';
-    btn.innerHTML = `<b>${['A','B','C','D'][i]}</b>. ${o}`;
-    btn.onclick = () => {
-      if(i === q.a) { players[currentPlayer].score += 10; sfxCorrect(); } else { sfxWrong(); }
-      document.getElementById('questionOverlay').classList.add('hidden');
-      cb();
-    };
-    opts.appendChild(btn);
-  });
-  document.getElementById('questionOverlay').classList.remove('hidden');
-}
-
-function showWin(pi) {
-  document.getElementById('winOverlay').classList.remove('hidden');
-  document.getElementById('winText').innerHTML = `Pemain ${PLAYER_NAMES[pi]} Menang!`;
-}
-
-if (window.lucide) lucide.createIcons();
-</script>
+    function checkSnakeLadder() {
+      let p = players[currentPlayer];
+      if(SNAKES[p.pos]) p.pos = SNAKES[p.pos];
+      if(LADDERS[p.pos]) p.pos = LADDERS[p.pos];
+      placePions();
+      currentPlayer = (currentPlayer + 1) % numPlayers;
+      document.getElementById('turnLabel').innerText = "Giliran: Pemain " + (currentPlayer + 1);
+      renderPlayerCards();
+    }
+  </script>
  </body>
 </html>
