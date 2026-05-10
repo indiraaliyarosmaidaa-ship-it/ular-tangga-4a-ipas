@@ -3,27 +3,23 @@
  <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Ular Tangga Full Papan</title>
+  <title>Ular Tangga Edukatif Full</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    /* Menghilangkan scroll dan memastikan layar penuh */
     * { font-family: 'Fredoka', sans-serif; box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100vh; width: 100vw; overflow: hidden; background: #f0f9ff; }
+    html, body { height: 100vh; width: 100vw; overflow: hidden; background: #1e293b; }
 
-    /* Container utama yang membungkus papan agar selalu penuh */
-    .full-game-wrapper {
+    .game-wrapper {
       position: relative;
       width: 100vw;
       height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #fef3c7, #ddd6fe);
-      padding: 5px;
+      background: linear-gradient(135deg, #e0f2fe, #f0f9ff);
     }
 
-    /* Grid papan dipaksa memenuhi area layar yang tersedia */
     #board { 
       display: grid; 
       grid-template-columns: repeat(6, 1fr); 
@@ -31,198 +27,248 @@
       gap: 4px; 
       width: 100%;
       height: 100%;
-      max-width: 100%;
+      padding: 10px;
     }
 
     .board-cell {
       position: relative;
       border-radius: 8px;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       font-weight: 700;
-      font-size: clamp(14px, 4vh, 32px);
-      border: 2px solid rgba(255, 255, 255, 0.5);
-      background: rgba(255, 255, 255, 0.2);
+      font-size: clamp(14px, 3.5vh, 30px);
+      border: 2px solid rgba(255, 255, 255, 0.6);
     }
 
-    /* Kontrol dadu diletakkan melayang (floating) agar tidak membagi layar */
-    .dice-container {
+    .pion {
       position: absolute;
-      bottom: 20px;
-      right: 20px;
+      width: clamp(18px, 4.5vh, 35px);
+      height: clamp(18px, 4.5vh, 35px);
+      border-radius: 50%;
+      border: 2px solid white;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+      z-index: 50;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .dice-ui {
+      position: absolute;
+      bottom: 15px;
+      right: 15px;
       z-index: 100;
       background: white;
-      padding: 15px;
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-      border: 4px solid #fbbf24;
+      padding: 12px;
+      border-radius: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      border: 4px solid #f59e0b;
       text-align: center;
     }
 
     .dice-face {
-      width: 60px;
-      height: 60px;
-      background: #f8fafc;
+      width: 55px;
+      height: 55px;
+      background: #fff;
       border: 2px solid #e2e8f0;
       border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 32px;
-      margin-bottom: 10px;
+      font-size: 28px;
+      margin: 0 auto 8px;
       cursor: pointer;
     }
 
-    .pion {
-      position: absolute;
-      width: clamp(20px, 5vh, 40px);
-      height: clamp(20px, 5vh, 40px);
-      border-radius: 50%;
-      border: 3px solid white;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      z-index: 50;
-      transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 200; }
+    
+    .toast {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      padding: 30px 60px;
+      border-radius: 20px;
+      color: white;
+      font-size: 40px;
+      font-bold: 900;
+      z-index: 300;
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
+    .toast.show { transform: translate(-50%, -50%) scale(1); }
 
-    .cell-num { position: absolute; top: 2px; left: 5px; opacity: 0.5; font-size: 0.7rem; }
-    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 20px; }
+    .cell-num { position: absolute; top: 2px; left: 5px; opacity: 0.4; font-size: 0.7rem; color: #000; }
   </style>
  </head>
  <body>
 
-  <div class="full-game-wrapper">
+  <div class="game-wrapper">
     <div id="board"></div>
 
-    <div class="dice-container">
+    <div class="dice-ui">
       <div id="dice" class="dice-face" onclick="rollDice()">🎲</div>
-      <button onclick="rollDice()" class="bg-orange-500 text-white px-5 py-2 rounded-full font-bold shadow-lg active:scale-95 transition">KOCOK</button>
-      <div id="turnTag" class="text-xs font-bold mt-2 text-red-600">Giliran: P1</div>
+      <button onclick="rollDice()" class="bg-blue-600 text-white px-4 py-2 rounded-full font-bold text-sm shadow-md active:scale-90 transition">KOCOK</button>
+      <div id="turnInfo" class="text-[10px] font-bold mt-2 uppercase">Pemain 1</div>
     </div>
   </div>
 
-  <div id="questionOverlay" class="overlay hidden">
-    <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl text-center">
-      <h3 class="text-xl font-bold text-purple-700 mb-4">❓ Pertanyaan</h3>
-      <p id="qText" class="text-lg font-medium mb-6 text-gray-800"></p>
+  <div id="qOverlay" class="overlay hidden">
+    <div class="bg-white rounded-3xl p-6 max-w-sm w-full text-center mx-4">
+      <div class="text-4xl mb-2">🤔</div>
+      <p id="qText" class="text-lg font-bold mb-6 text-gray-800"></p>
       <div id="qOptions" class="flex flex-col gap-3"></div>
     </div>
   </div>
 
+  <div id="statusToast" class="toast"></div>
+
   <script>
-    const COLORS = ['#fca5a5','#fdba74','#fcd34d','#86efac','#7dd3fc','#c4b5fd'];
-    const QUESTIONS = [
-      {q:"Es mencair karena suhu...", o:["Panas","Dingin"], a:0},
-      {q:"Uap air menjadi titik air disebut...", o:["Membeku","Mengembun"], a:1},
-      {q:"Benda padat ke gas disebut...", o:["Menyublim","Menguap"], a:0}
-    ];
-    
-    const SNAKES = {17:7, 24:14, 29:11};
-    const LADDERS = {3:12, 8:26, 15:25};
-    
-    let players = [{pos:1, color:'#ef4444'}, {pos:1, color:'#3b82f6'}];
-    let currentPlayer = 0;
-    let isMoving = false;
-
-    // Inisialisasi Papan Langsung Tanpa Klik Apapun
-    function init() {
-      const board = document.getElementById('board');
-      for (let i = 1; i <= 30; i++) {
-        const cell = document.createElement('div');
-        cell.className = 'board-cell';
-        cell.id = 'cell-' + i;
-        cell.style.backgroundColor = COLORS[i % COLORS.length];
-        
-        let label = i;
-        if(i === 1) label = "START";
-        if(i === 30) label = "FINISH";
-        
-        let icon = "";
-        if(SNAKES[i]) icon = "🐍";
-        if(LADDERS[i]) icon = "🪜";
-
-        cell.innerHTML = `<span class="cell-num">${label}</span><span class="text-2xl">${icon}</span>`;
-        board.appendChild(cell);
-      }
-      renderPions();
+    // --- AUDIO ENGINE ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playSound(freq, type, duration, vol = 0.1) {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
     }
 
-    function renderPions() {
+    const sfx = {
+      dice: () => { for(let i=0; i<3; i++) setTimeout(() => playSound(400 + (i*100), 'square', 0.1), i*50) },
+      step: () => playSound(150, 'sine', 0.1, 0.05),
+      correct: () => { playSound(523, 'sine', 0.2); setTimeout(() => playSound(659, 'sine', 0.3), 100) },
+      wrong: () => { playSound(200, 'sawtooth', 0.3); setTimeout(() => playSound(150, 'sawtooth', 0.4), 150) }
+    };
+
+    // --- GAME DATA ---
+    const COLORS = ['#FFADAD', '#FFD6A5', '#FDFFB6', '#CAFFBF', '#9BF6FF', '#A0C4FF'];
+    const P_COLORS = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'];
+    const QUESTIONS = [
+      {q:"Es mencair karena...", o:["Panas","Dingin"], a:0},
+      {q:"Air jadi es disebut...", o:["Menguap","Membeku"], a:1},
+      {q:"Padat ke gas...", o:["Menyublim","Mencair"], a:0}
+    ];
+    const SNAKES = {17:7, 24:14, 29:11};
+    const LADDERS = {3:12, 8:26, 15:25};
+
+    let players = P_COLORS.map(c => ({pos: 1, color: c}));
+    let currentPlayer = 0;
+    let busy = false;
+
+    // --- LOGIC ---
+    function init() {
+      const b = document.getElementById('board');
+      for (let i = 1; i <= 30; i++) {
+        const c = document.createElement('div');
+        c.className = 'board-cell';
+        c.id = 'cell-' + i;
+        c.style.backgroundColor = COLORS[i % COLORS.length];
+        
+        let icon = SNAKES[i] ? "🐍" : (LADDERS[i] ? "🪜" : "");
+        c.innerHTML = `<span class="cell-num">${i===1?'START':i===30?'FINISH':i}</span><span>${icon}</span>`;
+        b.appendChild(c);
+      }
+      draw();
+    }
+
+    function draw() {
       document.querySelectorAll('.pion').forEach(p => p.remove());
       players.forEach((p, i) => {
         const cell = document.getElementById('cell-' + p.pos);
-        const pion = document.createElement('div');
-        pion.className = 'pion';
-        pion.style.backgroundColor = p.color;
-        // Penyesuaian agar tidak menumpuk pas
-        pion.style.transform = `translate(${i * 12}px, ${i * 12}px)`;
-        cell.appendChild(pion);
+        const el = document.createElement('div');
+        el.className = 'pion';
+        el.style.backgroundColor = p.color;
+        // Sebaran 5 pion agar tidak menumpuk
+        const offsets = [[-8,-8], [8,-8], [-8,8], [8,8], [0,0]];
+        el.style.transform = `translate(${offsets[i][0]}px, ${offsets[i][1]}px)`;
+        cell.appendChild(el);
       });
+      document.getElementById('turnInfo').innerText = "Giliran: P" + (currentPlayer+1);
+      document.getElementById('turnInfo').style.color = players[currentPlayer].color;
     }
 
     async function rollDice() {
-      if(isMoving) return;
-      isMoving = true;
+      if(busy) return;
+      busy = true;
+      if(audioCtx.state === 'suspended') audioCtx.resume();
       
-      const dice = document.getElementById('dice');
+      sfx.dice();
+      const d = document.getElementById('dice');
       let val = 1;
-      for(let i=0; i<6; i++) {
-        val = Math.floor(Math.random() * 6) + 1;
-        dice.innerText = val;
-        await new Promise(r => setTimeout(r, 100));
+      for(let i=0; i<8; i++) {
+        val = Math.floor(Math.random()*6)+1;
+        d.innerText = val;
+        await new Promise(r => setTimeout(r, 80));
       }
-
-      await movePlayer(val);
+      
+      move(val);
     }
 
-    async function movePlayer(steps) {
+    async function move(steps) {
       let p = players[currentPlayer];
       for(let i=0; i<steps; i++) {
         if(p.pos < 30) {
           p.pos++;
-          renderPions();
+          sfx.step();
+          draw();
           await new Promise(r => setTimeout(r, 300));
         }
       }
-
-      if(p.pos === 30) {
-        alert("Pemain " + (currentPlayer + 1) + " Menang! 🎉");
-        location.reload();
-        return;
-      }
-
-      showQuestion();
+      if(p.pos === 30) { alert("Pemain " + (currentPlayer+1) + " Menang!"); location.reload(); return; }
+      ask();
     }
 
-    function showQuestion() {
-      const q = QUESTIONS[Math.floor(Math.random() * QUESTIONS.length)];
+    function ask() {
+      const q = QUESTIONS[Math.floor(Math.random()*QUESTIONS.length)];
       document.getElementById('qText').innerText = q.q;
-      const opts = document.getElementById('qOptions');
-      opts.innerHTML = '';
+      const opt = document.getElementById('qOptions');
+      opt.innerHTML = '';
       
       q.o.forEach((o, i) => {
         const btn = document.createElement('button');
-        btn.className = "w-full p-4 bg-purple-100 hover:bg-purple-200 rounded-2xl font-bold text-purple-700 transition";
+        btn.className = "w-full p-4 bg-blue-50 hover:bg-blue-100 rounded-2xl font-bold transition";
         btn.innerText = o;
         btn.onclick = () => {
-          document.getElementById('questionOverlay').classList.add('hidden');
-          checkSpecialCells();
+          document.getElementById('qOverlay').classList.add('hidden');
+          handleAnswer(i === q.a);
         };
-        opts.appendChild(btn);
+        opt.appendChild(btn);
       });
-      document.getElementById('questionOverlay').classList.remove('hidden');
+      document.getElementById('qOverlay').classList.remove('hidden');
     }
 
-    function checkSpecialCells() {
+    function handleAnswer(isCorrect) {
+      const t = document.getElementById('statusToast');
+      if(isCorrect) {
+        sfx.correct();
+        t.innerText = "BENAR! ✅";
+        t.style.backgroundColor = "#10b981";
+      } else {
+        sfx.wrong();
+        t.innerText = "SALAH! ❌";
+        t.style.backgroundColor = "#ef4444";
+      }
+      
+      t.classList.add('show');
+      setTimeout(() => {
+        t.classList.remove('show');
+        finalize();
+      }, 1500);
+    }
+
+    function finalize() {
       let p = players[currentPlayer];
       if(SNAKES[p.pos]) p.pos = SNAKES[p.pos];
       if(LADDERS[p.pos]) p.pos = LADDERS[p.pos];
       
-      renderPions();
+      draw();
       currentPlayer = (currentPlayer + 1) % players.length;
-      document.getElementById('turnTag').innerText = "Giliran: P" + (currentPlayer + 1);
-      document.getElementById('turnTag').style.color = players[currentPlayer].color;
-      isMoving = false;
+      busy = false;
     }
 
     init();
