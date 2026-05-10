@@ -1,232 +1,552 @@
 <!doctype html>
 <html lang="id">
- <head>
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ular Tangga Perubahan Wujud Benda</title>
+
+  <!-- FIXED TAILWIND -->
   <script src="https://cdn.tailwindcss.com"></script>
+
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   <style>
-    * { font-family: 'Fredoka', sans-serif; box-sizing: border-box; -webkit-user-select: none; user-select: none; }
-    html, body { height: 100vh; margin: 0; padding: 0; width: 100%; overflow: hidden; }
-    body { background: linear-gradient(135deg, #fef3c7, #fbcfe8, #ddd6fe, #bfdbfe); }
-    
-    /* Perbaikan: Menggunakan flex-col dan h-screen agar memenuhi layar */
-    .app-wrap { display: flex; flex-direction: column; height: 100vh; width: 100%; }
-    
-    #gameScreen { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-    
-    /* Layout utama: Papan di kiri/tengah, Sidebar di kanan */
-    .game-container { display: flex; flex: 1; overflow: hidden; padding: 15px; gap: 20px; }
-    
-    .board-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; height: 100%; }
-    
-    #board { 
-      display: grid; 
-      grid-template-columns: repeat(6, 1fr); 
-      gap: 8px; 
-      width: 100%; 
-      max-width: 80vh; /* Memastikan papan tetap proporsional sesuai tinggi layar */
-      aspect-ratio: 6 / 5;
+    *{
+      font-family:'Fredoka',sans-serif;
+      box-sizing:border-box;
+      -webkit-user-select:none;
+      user-select:none
     }
 
-    .board-cell {
-      position: relative;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: clamp(12px, 2vh, 20px);
-      border: 3px solid rgba(255, 255, 255, 0.5);
-      transition: transform 0.2s;
-      aspect-ratio: 1;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    /* FIXED OVERFLOW */
+    html,body{
+      height:100%;
+      margin:0;
+      padding:0;
+      width:100%;
+      overflow:auto
     }
 
-    .sidebar { width: 300px; display: flex; flex-direction: column; gap: 15px; flex-shrink: 0; }
-    
-    /* Responsif untuk HP */
-    @media (max-width: 1024px) {
-      .game-container { flex-direction: column; overflow-y: auto; }
-      .sidebar { width: 100%; }
-      #board { max-width: 100%; }
-      html, body { overflow: auto; }
+    body{
+      background:linear-gradient(135deg,#fef3c7,#fbcfe8,#ddd6fe,#bfdbfe)
     }
 
-    .pion { position: absolute; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.3); transition: all 0.4s cubic-bezier(.34,1.56,.64,1); z-index: 10; width: 25px; height: 25px; }
-    .dice-face { width: 80px; height: 80px; background: #fff; border-radius: 16px; display: grid; padding: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); border: 3px solid #fbbf24; }
-    .dot { width: 14px; height: 14px; background: #1e293b; border-radius: 50%; }
-    .btn-primary { background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff; font-weight: 700; padding: 12px 28px; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 15px rgba(239,68,68,0.3); }
-    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 16px; }
-    .cell-emoji { position: absolute; font-size: 1.2rem; bottom: 2px; right: 2px; opacity: 0.8; }
+    .app-wrap{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+      display:flex;
+      flex-direction:column
+    }
+
+    .board-cell{
+      position:relative;
+      border-radius:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:700;
+      font-size:clamp(11px,1.8vw,18px);
+      border:3px solid rgba(255,255,255,.5);
+      transition:transform .2s;
+      cursor:pointer;
+      aspect-ratio:1;
+      overflow:visible
+    }
+
+    .board-cell:hover{
+      transform:scale(1.08);
+      z-index:2
+    }
+
+    .board-cell .cell-num{
+      position:relative;
+      z-index:2
+    }
+
+    .pion{
+      position:absolute;
+      border-radius:50%;
+      border:2px solid #fff;
+      box-shadow:0 2px 6px rgba(0,0,0,.3);
+      transition:all .4s cubic-bezier(.34,1.56,.64,1);
+      z-index:10;
+      width:clamp(14px,2.2vw,26px);
+      height:clamp(14px,2.2vw,26px);
+      cursor:grab
+    }
+
+    .dice-face{
+      width:80px;
+      height:80px;
+      background:#fff;
+      border-radius:16px;
+      display:grid;
+      padding:12px;
+      box-shadow:0 4px 20px rgba(0,0,0,.15);
+      border:3px solid #fbbf24
+    }
+
+    .dot{
+      width:14px;
+      height:14px;
+      background:#1e293b;
+      border-radius:50%
+    }
+
+    @keyframes diceRoll{
+      0%{transform:rotateZ(0) scale(1)}
+      25%{transform:rotateZ(90deg) scale(1.2)}
+      50%{transform:rotateZ(180deg) scale(.9)}
+      75%{transform:rotateZ(270deg) scale(1.1)}
+      100%{transform:rotateZ(360deg) scale(1)}
+    }
+
+    .dice-rolling{
+      animation:diceRoll .5s ease-in-out
+    }
+
+    .overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.5);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:50;
+      padding:16px
+    }
+
+    .btn-primary{
+      background:linear-gradient(135deg,#f59e0b,#ef4444);
+      color:#fff;
+      font-weight:700;
+      padding:12px 28px;
+      border-radius:50px;
+      border:none;
+      font-size:18px;
+      cursor:pointer
+    }
+
+    .player-card{
+      border-radius:16px;
+      padding:10px 14px
+    }
+
+    #gameScreen{
+      flex:1;
+      overflow:auto
+    }
+
+    #setupScreen{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex:1
+    }
   </style>
- </head>
- <body>
-  <div class="app-wrap" id="appWrap">
-   <div id="setupScreen" class="flex items-center justify-center flex-1">
-    <div class="bg-white/90 backdrop-blur rounded-3xl shadow-2xl p-8 max-w-md w-full text-center">
-     <div class="text-5xl mb-3">🎲🐍🪜</div>
-     <h1 class="text-3xl font-bold text-orange-600 mb-6">Ular Tangga Edukasi</h1>
-     <p class="mb-6 text-gray-600">Pilih jumlah pemain untuk memulai!</p>
-     <div class="flex gap-3 justify-center mb-6">
-       <button onclick="setPlayers(2)" class="px-4 py-2 bg-purple-100 rounded-xl font-bold">2 Pemain</button>
-       <button onclick="setPlayers(3)" class="px-4 py-2 bg-blue-100 rounded-xl font-bold">3 Pemain</button>
-       <button onclick="setPlayers(4)" class="px-4 py-2 bg-green-100 rounded-xl font-bold">4 Pemain</button>
-     </div>
-     <button onclick="startGame()" class="btn-primary w-full text-xl">🎮 Mulai Bermain!</button>
-    </div>
-   </div>
+</head>
 
-   <div id="gameScreen" class="hidden">
-    <header class="flex items-center justify-between px-6 py-3 bg-white/80 shadow-sm">
-     <h1 class="font-bold text-xl text-orange-600">🎲 Ular Tangga Wujud Benda</h1>
-     <button onclick="location.reload()" class="text-red-500 font-bold">Reset Game</button>
+<body>
+
+<div class="app-wrap" id="appWrap">
+
+  <!-- SETUP -->
+  <div id="setupScreen">
+
+    <div class="bg-white/90 rounded-3xl shadow-2xl p-8 max-w-md w-full text-center">
+
+      <div class="text-5xl mb-3">
+        🎲🐍🪜
+      </div>
+
+      <h1 class="text-3xl font-bold mb-2 text-orange-500">
+        Ular Tangga
+      </h1>
+
+      <p class="text-lg text-gray-600 mb-6">
+        Perubahan Wujud Benda
+      </p>
+
+      <label class="block text-left font-semibold mb-2">
+        Jumlah Pemain:
+      </label>
+
+      <div class="flex gap-3 justify-center mb-6 flex-wrap">
+
+        <button onclick="setPlayers(2)" class="player-select px-6 py-3 rounded-2xl bg-purple-100">
+          2 👫
+        </button>
+
+        <button onclick="setPlayers(3)" class="player-select px-6 py-3 rounded-2xl bg-blue-100">
+          3 👨‍👩‍👧
+        </button>
+
+        <button onclick="setPlayers(4)" class="player-select px-6 py-3 rounded-2xl bg-green-100">
+          4 👨‍👩‍👧‍👦
+        </button>
+
+        <button onclick="setPlayers(5)" class="player-select px-6 py-3 rounded-2xl bg-orange-100">
+          5 🎉
+        </button>
+
+      </div>
+
+      <button onclick="startGame()" class="btn-primary w-full">
+        🎮 Mulai Bermain!
+      </button>
+
+    </div>
+  </div>
+
+  <!-- GAME -->
+  <div id="gameScreen" class="hidden">
+
+    <header class="flex items-center justify-between px-4 py-2 bg-white/80 shadow-md">
+
+      <h1 class="font-bold text-lg">
+        🎲 Ular Tangga Wujud Benda
+      </h1>
+
+      <div class="flex gap-2">
+
+        <button onclick="toggleMusic()" id="musicBtn">
+          <i data-lucide="volume-2"></i>
+        </button>
+
+        <button onclick="resetGame()" class="text-red-500">
+          <i data-lucide="rotate-ccw"></i>
+        </button>
+
+      </div>
+
     </header>
 
-    <div class="game-container">
-     <div class="board-wrapper">
-      <div id="board"></div>
-     </div>
+    <div class="flex flex-col lg:flex-row flex-1 overflow-auto p-3 gap-3">
 
-     <div class="sidebar">
-      <div class="bg-white/90 p-5 rounded-2xl shadow-lg text-center">
-       <p id="turnLabel" class="font-bold mb-3 text-lg">Giliran: Pemain 1</p>
-       <div class="flex justify-center mb-4">
-        <div id="dice" class="dice-face" style="display:grid; grid-template:repeat(3,1fr)/repeat(3,1fr); place-items:center;"></div>
-       </div>
-       <button onclick="rollDice()" id="rollBtn" class="btn-primary w-full">🎲 Lempar Dadu</button>
+      <div class="flex-1 flex items-start justify-center">
+
+        <div class="w-full max-w-[600px]">
+
+          <div id="board" class="grid grid-cols-6 gap-1.5 relative"></div>
+
+        </div>
+
       </div>
-      
-      <div class="bg-white/90 p-5 rounded-2xl shadow-lg flex-1">
-       <p class="font-bold mb-3">📊 Skor Pemain</p>
-       <div id="playerCards" class="flex flex-col gap-2"></div>
+
+      <div class="lg:w-72 w-full flex flex-col gap-3">
+
+        <div class="bg-white/90 rounded-2xl shadow-lg p-4 text-center">
+
+          <p class="font-bold text-gray-600 mb-1" id="turnLabel">
+            Giliran: Pemain 1
+          </p>
+
+          <div class="flex justify-center mb-3">
+
+            <div id="dice" class="dice-face"></div>
+
+          </div>
+
+          <button onclick="rollDice()" id="rollBtn" class="btn-primary w-full">
+            🎲 Lempar Dadu!
+          </button>
+
+        </div>
+
+        <div class="bg-white/90 rounded-2xl shadow-lg p-4 flex-1 overflow-auto">
+
+          <p class="font-bold text-gray-600 mb-2">
+            📊 Skor Pemain
+          </p>
+
+          <div id="playerCards" class="flex flex-col gap-2"></div>
+
+        </div>
+
       </div>
-     </div>
+
     </div>
-   </div>
+
   </div>
 
-  <div id="questionOverlay" class="overlay hidden">
-   <div class="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl">
-    <h2 class="font-bold text-2xl text-purple-700 mb-4">❓ Pertanyaan</h2>
-    <p id="qText" class="text-lg mb-6"></p>
-    <div id="qOptions" class="flex flex-col gap-3"></div>
-   </div>
+</div>
+
+<!-- SOAL -->
+<div id="questionOverlay" class="overlay hidden">
+
+  <div class="bg-white rounded-3xl shadow-2xl p-6 max-w-lg w-full">
+
+    <h2 class="font-bold text-xl text-purple-700 mb-4">
+      ❓ Soal Perubahan Wujud
+    </h2>
+
+    <p id="qText" class="text-lg font-semibold mb-4"></p>
+
+    <div id="qOptions" class="flex flex-col gap-2"></div>
+
   </div>
 
-  <script>
-    const ALL_QUESTIONS = [
-      {q:"Padat menjadi cair disebut…", o:["Membeku","Mencair","Menguap","Menyublim"], a:1},
-      {q:"Air di freezer menjadi es adalah contoh…", o:["Mencair","Membeku","Menguap","Mengembun"], a:1},
-      {q:"Kapur barus yang habis karena diletakkan di lemari disebut…", o:["Menguap","Mencair","Menyublim","Mengembun"], a:2}
+</div>
+
+<script>
+
+const QUESTIONS = [
+  {
+    q:"Padat menjadi cair disebut…",
+    o:["Membeku","Mencair","Mengembun","Menyublim"],
+    a:1
+  },
+  {
+    q:"Es batu di tempat terbuka akan…",
+    o:["Membeku","Mencair","Menguap","Menyublim"],
+    a:1
+  },
+  {
+    q:"Air mendidih berubah menjadi…",
+    o:["Es","Minyak","Uap air","Embun"],
+    a:2
+  }
+];
+
+const PLAYER_COLORS = ['#ef4444','#3b82f6','#10b981','#f59e0b','#8b5cf6'];
+
+let numPlayers = 2;
+let currentPlayer = 0;
+let players = [];
+
+function setPlayers(n){
+  numPlayers = n;
+}
+
+function startGame(){
+
+  /* FIXED AUDIO AUTOPLAY */
+  document.body.addEventListener('click', () => {
+    initAudio();
+  }, { once:true });
+
+  players = [];
+
+  for(let i=0;i<numPlayers;i++){
+    players.push({
+      pos:1,
+      score:0
+    });
+  }
+
+  document.getElementById('setupScreen').classList.add('hidden');
+  document.getElementById('gameScreen').classList.remove('hidden');
+
+  buildBoard();
+  renderPlayers();
+  renderDice(1);
+
+  /* FIXED LUCIDE */
+  if(window.lucide){
+    lucide.createIcons();
+  }
+}
+
+function buildBoard(){
+
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+
+  for(let i=1;i<=30;i++){
+
+    const cell = document.createElement('div');
+
+    cell.className = 'board-cell';
+
+    cell.style.background =
+      `hsl(${i*12},80%,75%)`;
+
+    cell.id = 'cell-'+i;
+
+    cell.innerHTML =
+      `<span class="cell-num">${i}</span>`;
+
+    board.appendChild(cell);
+  }
+}
+
+function renderPlayers(){
+
+  document.querySelectorAll('.pion').forEach(p=>p.remove());
+
+  players.forEach((p,i)=>{
+
+    const cell = document.getElementById('cell-'+p.pos);
+
+    if(!cell) return;
+
+    const pion = document.createElement('div');
+
+    pion.className = 'pion';
+
+    pion.style.background = PLAYER_COLORS[i];
+
+    pion.style.left = (10 + (i*8)) + 'px';
+
+    pion.style.top = (10 + (i*8)) + 'px';
+
+    cell.appendChild(pion);
+
+  });
+
+  renderCards();
+}
+
+function renderCards(){
+
+  const wrap = document.getElementById('playerCards');
+
+  wrap.innerHTML = '';
+
+  players.forEach((p,i)=>{
+
+    const div = document.createElement('div');
+
+    div.className = 'player-card';
+
+    div.style.background = PLAYER_COLORS[i] + '22';
+
+    div.innerHTML =
+      `
+      <b style="color:${PLAYER_COLORS[i]}">
+        Pemain ${i+1}
+      </b>
+      <br>
+      Kotak ${p.pos}
+      <br>
+      ⭐ ${p.score}
+      `;
+
+    wrap.appendChild(div);
+  });
+
+  document.getElementById('turnLabel').innerHTML =
+    `Giliran: Pemain ${currentPlayer+1}`;
+}
+
+function renderDice(val){
+
+  const dice = document.getElementById('dice');
+
+  dice.innerHTML = `<div style="
+    font-size:40px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:100%;
+    height:100%;
+  ">${val}</div>`;
+}
+
+async function rollDice(){
+
+  const val =
+    Math.floor(Math.random()*6)+1;
+
+  renderDice(val);
+
+  let p = players[currentPlayer];
+
+  for(let i=0;i<val;i++){
+
+    await new Promise(r=>setTimeout(r,300));
+
+    if(p.pos < 30){
+      p.pos++;
+    }
+
+    renderPlayers();
+  }
+
+  showQuestion();
+}
+
+function showQuestion(){
+
+  const q =
+    QUESTIONS[
+      Math.floor(Math.random()*QUESTIONS.length)
     ];
 
-    const COLS=6, ROWS=5, TOTAL=30;
-    const CELL_COLORS=['#fca5a5','#fdba74','#fcd34d','#86efac','#7dd3fc','#c4b5fd'];
-    const PLAYER_COLORS=['#ef4444','#3b82f6','#10b981','#f59e0b'];
-    const SNAKES={17:7, 24:14, 29:11};
-    const LADDERS={3:12, 8:26, 15:25};
+  document.getElementById('questionOverlay')
+    .classList.remove('hidden');
 
-    let numPlayers=2, players=[], currentPlayer=0, gameActive=false;
+  document.getElementById('qText')
+    .textContent = q.q;
 
-    function setPlayers(n) { numPlayers = n; }
+  const wrap =
+    document.getElementById('qOptions');
 
-    function cellToGrid(n) {
-      const idx = n - 1;
-      const r = Math.floor(idx / COLS);
-      const c = idx % COLS;
-      return { row: ROWS - 1 - r, col: (r % 2 === 0) ? c : (COLS - 1 - c) };
-    }
+  wrap.innerHTML = '';
 
-    function buildBoard() {
-      const board = document.getElementById('board');
-      board.innerHTML = '';
-      for (let n = 1; n <= TOTAL; n++) {
-        const div = document.createElement('div');
-        div.className = 'board-cell';
-        div.id = 'cell-' + n;
-        div.style.backgroundColor = CELL_COLORS[(n-1) % CELL_COLORS.length];
-        div.innerHTML = `<span>${n === 1 ? 'START' : n === 30 ? 'FINISH' : n}</span>`;
-        if(SNAKES[n]) div.innerHTML += `<span class="cell-emoji">🐍</span>`;
-        if(LADDERS[n]) div.innerHTML += `<span class="cell-emoji">🪜</span>`;
-        board.appendChild(div);
+  q.o.forEach((opt,i)=>{
+
+    const btn =
+      document.createElement('button');
+
+    btn.className =
+      'border rounded-xl px-4 py-3 text-left hover:bg-purple-100';
+
+    btn.textContent = opt;
+
+    btn.onclick = ()=>{
+
+      if(i===q.a){
+        players[currentPlayer].score += 10;
+        alert('✅ Benar!');
+      }else{
+        alert('❌ Salah!');
       }
-    }
 
-    function startGame() {
-      players = Array.from({length: numPlayers}, () => ({pos: 1, score: 0}));
-      document.getElementById('setupScreen').classList.add('hidden');
-      document.getElementById('gameScreen').classList.remove('hidden');
-      buildBoard();
-      placePions();
-      renderPlayerCards();
-    }
+      document.getElementById('questionOverlay')
+        .classList.add('hidden');
 
-    function placePions() {
-      document.querySelectorAll('.pion').forEach(p => p.remove());
-      players.forEach((p, i) => {
-        const cell = document.getElementById('cell-' + p.pos);
-        const pion = document.createElement('div');
-        pion.className = 'pion';
-        pion.style.backgroundColor = PLAYER_COLORS[i];
-        pion.style.left = (10 * i) + 'px'; 
-        cell.appendChild(pion);
-      });
-    }
+      currentPlayer =
+        (currentPlayer+1)%numPlayers;
 
-    function renderPlayerCards() {
-      const container = document.getElementById('playerCards');
-      container.innerHTML = players.map((p, i) => `
-        <div class="p-3 rounded-xl ${i === currentPlayer ? 'border-2 border-orange-500 bg-orange-50' : 'bg-gray-100'}">
-          Pemain ${i+1}: Kotak ${p.pos} | Skor: ${p.score}
-        </div>
-      `).join('');
-    }
+      renderCards();
+    };
 
-    async function rollDice() {
-      const val = Math.floor(Math.random() * 6) + 1;
-      // Animasi dadu sederhana
-      document.getElementById('dice').innerText = val;
-      
-      let p = players[currentPlayer];
-      p.pos = Math.min(p.pos + val, TOTAL);
-      placePions();
-      
-      if(p.pos === TOTAL) { alert("Pemain " + (currentPlayer+1) + " Menang!"); return; }
-      
-      showQuestion();
-    }
+    wrap.appendChild(btn);
+  });
+}
 
-    function showQuestion() {
-      const q = ALL_QUESTIONS[Math.floor(Math.random() * ALL_QUESTIONS.length)];
-      document.getElementById('qText').innerText = q.q;
-      const opts = document.getElementById('qOptions');
-      opts.innerHTML = '';
-      q.o.forEach((o, i) => {
-        const btn = document.createElement('button');
-        btn.className = "p-3 bg-purple-50 hover:bg-purple-100 rounded-xl text-left border";
-        btn.innerText = o;
-        btn.onclick = () => {
-          if(i === q.a) players[currentPlayer].score += 10;
-          document.getElementById('questionOverlay').classList.add('hidden');
-          checkSnakeLadder();
-        };
-        opts.appendChild(btn);
-      });
-      document.getElementById('questionOverlay').classList.remove('hidden');
-    }
+function resetGame(){
+  location.reload();
+}
 
-    function checkSnakeLadder() {
-      let p = players[currentPlayer];
-      if(SNAKES[p.pos]) p.pos = SNAKES[p.pos];
-      if(LADDERS[p.pos]) p.pos = LADDERS[p.pos];
-      placePions();
-      currentPlayer = (currentPlayer + 1) % numPlayers;
-      document.getElementById('turnLabel').innerText = "Giliran: Pemain " + (currentPlayer + 1);
-      renderPlayerCards();
-    }
-  </script>
- </body>
+let audioCtx = null;
+
+function initAudio(){
+
+  if(!audioCtx){
+
+    audioCtx =
+      new(window.AudioContext ||
+      window.webkitAudioContext)();
+  }
+}
+
+function toggleMusic(){
+  alert('Musik aktif/nonaktif');
+}
+
+/* FIXED LUCIDE */
+if(window.lucide){
+  lucide.createIcons();
+}
+
+</script>
+
+</body>
 </html>
